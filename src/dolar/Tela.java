@@ -7,9 +7,14 @@ package dolar;
 
 import com.google.gson.Gson;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -164,6 +169,16 @@ public class Tela extends javax.swing.JFrame {
         setTitle("Hotel Marin Château - Conversão de Dolar");
 
         image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dolar/Guarda-sol.jpg"))); // NOI18N
+        image.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                imageMouseMoved(evt);
+            }
+        });
+        image.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                imageMouseClicked(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 255));
@@ -353,6 +368,23 @@ public class Tela extends javax.swing.JFrame {
         iniciar();
         JOptionPane.showMessageDialog(null, "Valores atualizados com sucesso!");
     }//GEN-LAST:event_refreshMouseClicked
+
+    private void imageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageMouseClicked
+        try {
+            // TODO add your handling code here:
+            Desktop.getDesktop().browse(new URI("http://www.marinchateau.com.br/"));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_imageMouseClicked
+
+    private void imageMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageMouseMoved
+        // TODO add your handling code here:
+        Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
+        image.setCursor(cursor);
+    }//GEN-LAST:event_imageMouseMoved
 
     
     public double converteValor(String aux) {
