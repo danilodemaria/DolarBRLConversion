@@ -7,14 +7,10 @@ package dolar;
 
 import com.google.gson.Gson;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,6 +21,9 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import jdk.nashorn.internal.parser.JSONParser;
+import net.projectmonkey.object.mapper.ObjectMapper;
+import org.json.JSONObject;
 
 /**
  *
@@ -32,9 +31,9 @@ import javax.swing.KeyStroke;
  */
 public class Tela extends javax.swing.JFrame {
 
-    double valorAtual=0;
-    
-    public Tela() {
+    double valorAtual = 0;
+
+    public Tela() throws NoSuchFieldException, FileNotFoundException {
         AplicaNimbusLookAndFeel.pegaNimbus();
         initComponents();
         this.setResizable(false);
@@ -50,95 +49,101 @@ public class Tela extends javax.swing.JFrame {
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
         getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
-    
+
     public boolean fechar() {
         System.exit(0);
         return true;
     }
-    
-    public void iniciar(){
+
+    public void iniciar() throws NoSuchFieldException, FileNotFoundException {
         String aux;
         String data = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
         dataLabel.setText(data);
         buscaDados();
-        aux=String.valueOf(valorAtual);        
+        aux = String.valueOf(valorAtual);
         dolarAtual.setText(String.format("%.2f", valorAtual));
-        dolarCambio.setText(String.format("%.2f", (valorAtual-0.05)));
+        dolarCambio.setText(String.format("%.2f", (valorAtual - 0.05)));
         reais.addKeyListener(new ValorMasc(reais, 7, 2));
-        dolar.addKeyListener(new ValorMasc(dolar, 7,2));
+        dolar.addKeyListener(new ValorMasc(dolar, 7, 2));
         reais.addKeyListener(listener);
         dolar.addKeyListener(listDolar);
         Color minhaCor = new Color(204, 255, 204);
         this.getContentPane().setBackground(minhaCor);
     }
-    
-     KeyListener listener = new KeyListener() {
+
+    KeyListener listener = new KeyListener() {
 
         @Override
-        public void keyPressed(KeyEvent event) {            
+        public void keyPressed(KeyEvent event) {
         }
 
         @Override
         public void keyReleased(KeyEvent event) {
             if (event.getKeyCode() == 17) {
                 reais.setText(null);
+                dolar.setText(null);
             } else {
                 calculateMouseClicked(null);
             }
         }
 
         @Override
-        public void keyTyped(KeyEvent event) {            
+        public void keyTyped(KeyEvent event) {
         }
     };
 
-     KeyListener listDolar = new KeyListener() {
+    KeyListener listDolar = new KeyListener() {
 
         @Override
-        public void keyPressed(KeyEvent event) {            
+        public void keyPressed(KeyEvent event) {
         }
 
         @Override
         public void keyReleased(KeyEvent event) {
             if (event.getKeyCode() == 17) {
                 dolar.setText(null);
+                reais.setText(null);
             } else {
                 cambio();
             }
         }
 
         @Override
-        public void keyTyped(KeyEvent event) {            
+        public void keyTyped(KeyEvent event) {
         }
     };
-     
-     public void cambio(){
-        double aux,aux1;
+
+    public void cambio() {
+        double aux, aux1;
         DecimalFormat df = new DecimalFormat("####.##");
         aux = converteValor(dolar.getText());
-        aux1=Double.parseDouble(dolarCambio.getText().replace(",", "."));
-        aux=aux*(aux1);        
+        aux1 = Double.parseDouble(dolarCambio.getText().replace(",", "."));
+        aux = aux * (aux1);
         reais.setText(String.valueOf(df.format(aux)));
-     }
-    
-    public void buscaDados(){
-        
+    }
+
+    public void buscaDados() throws NoSuchFieldException, FileNotFoundException {
+
         String retorno = null;
         Gson gson = new Gson();
         ConexaoHttp a = new ConexaoHttp();
-        
-        String url = "http://api.promasters.net.br/cotacao/v1/valores?moedas=USD&alt=json";
-        
+
+        String url = "http://economia.awesomeapi.com.br/USD-BRL/1";
+        System.out.println(url);
         try {
             retorno = a.sendGet(url);
         } catch (Exception ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-        retorno=retorno.substring(54, 67);
-        retorno=retorno.replace("valor\":", "");        
-        valorAtual=Double.parseDouble(retorno);
+        }
+
+        Gson g = new Gson();
+        RequestJson[] p = g.fromJson(retorno, RequestJson[].class);        
+        //retorno = retorno.substring(68, 73);
+        //retorno = retorno.replace("valor\":", "");
+        valorAtual = Double.parseDouble(p[0].getHigh());
 
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -164,21 +169,12 @@ public class Tela extends javax.swing.JFrame {
         dolarAtual1 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         dataLabel = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hotel Marin Château - Conversão de Dolar");
 
         image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dolar/Guarda-sol.jpg"))); // NOI18N
-        image.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
-                imageMouseMoved(evt);
-            }
-        });
-        image.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                imageMouseClicked(evt);
-            }
-        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 255));
@@ -214,6 +210,11 @@ public class Tela extends javax.swing.JFrame {
 
         dolar.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolar.setForeground(new java.awt.Color(0, 0, 255));
+        dolar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dolarActionPerformed(evt);
+            }
+        });
 
         calculate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dolar/shuffle.png"))); // NOI18N
         calculate.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -253,6 +254,9 @@ public class Tela extends javax.swing.JFrame {
         dataLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dataLabel.setForeground(new java.awt.Color(255, 0, 0));
         dataLabel.setText("R$ 0,05");
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel7.setText("*Desenvolvido por Danilo de Maria");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -300,7 +304,11 @@ public class Tela extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(dolarAtual1))
                     .addComponent(image, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 11, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel7)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -334,7 +342,9 @@ public class Tela extends javax.swing.JFrame {
                         .addComponent(calculate)
                         .addComponent(cleanFields))
                     .addComponent(refresh))
-                .addGap(0, 17, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel7)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -342,18 +352,18 @@ public class Tela extends javax.swing.JFrame {
 
     private void calculateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_calculateMouseClicked
         // TODO add your handling code here:
-        double aux,aux1;
+        double aux, aux1;
         DecimalFormat df = new DecimalFormat("####.##");
         aux = converteValor(reais.getText());
-        aux1=Double.parseDouble(dolarCambio.getText().replace(",", "."));
-        aux=aux/(aux1);        
+        aux1 = Double.parseDouble(dolarCambio.getText().replace(",", "."));
+        aux = aux / (aux1);
         dolar.setText(String.valueOf(df.format(aux)));
-        
+
     }//GEN-LAST:event_calculateMouseClicked
 
     private void reaisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reaisActionPerformed
         // TODO add your handling code here:
-        calculateMouseClicked(null);
+        dolar.requestFocus();
     }//GEN-LAST:event_reaisActionPerformed
 
     private void cleanFieldsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cleanFieldsMouseClicked
@@ -364,35 +374,31 @@ public class Tela extends javax.swing.JFrame {
     }//GEN-LAST:event_cleanFieldsMouseClicked
 
     private void refreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshMouseClicked
-        // TODO add your handling code here:
-        iniciar();
+
+        try {
+            // TODO add your handling code here:
+            iniciar();
+        } catch (NoSuchFieldException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         JOptionPane.showMessageDialog(null, "Valores atualizados com sucesso!");
     }//GEN-LAST:event_refreshMouseClicked
 
-    private void imageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageMouseClicked
-        try {
-            // TODO add your handling code here:
-            Desktop.getDesktop().browse(new URI("http://www.marinchateau.com.br/"));
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_imageMouseClicked
-
-    private void imageMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageMouseMoved
+    private void dolarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dolarActionPerformed
         // TODO add your handling code here:
-        Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
-        image.setCursor(cursor);
-    }//GEN-LAST:event_imageMouseMoved
+        reais.requestFocus();
+    }//GEN-LAST:event_dolarActionPerformed
 
-    
     public double converteValor(String aux) {
 
         aux = aux.replace(".", "");
         aux = aux.replace(",", ".");
         return Double.parseDouble(aux);
     }
+
     /**
      * @param args the command line arguments
      */
@@ -423,7 +429,13 @@ public class Tela extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Tela().setVisible(true);
+                try {
+                    new Tela().setVisible(true);
+                } catch (NoSuchFieldException ex) {
+                    Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -443,6 +455,7 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JTextField reais;
     private javax.swing.JButton refresh;
     // End of variables declaration//GEN-END:variables

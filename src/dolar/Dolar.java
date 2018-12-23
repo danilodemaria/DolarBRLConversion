@@ -5,6 +5,8 @@
  */
 package dolar;
 
+import java.io.FileNotFoundException;
+
 /**
  *
  * @author Administração
@@ -14,7 +16,7 @@ public class Dolar {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchFieldException, FileNotFoundException {
         // TODO code application logic here
         Tela a = new Tela();
         a.setVisible(true);
