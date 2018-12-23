@@ -11,9 +11,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -26,7 +31,7 @@ public class Tela extends javax.swing.JFrame {
 
     double valorAtual = 0;
 
-    public Tela() throws NoSuchFieldException, FileNotFoundException {
+    public Tela() throws NoSuchFieldException, FileNotFoundException, ParseException {
         AplicaNimbusLookAndFeel.pegaNimbus();
         initComponents();
         this.setResizable(false);
@@ -49,7 +54,7 @@ public class Tela extends javax.swing.JFrame {
         return true;
     }
 
-    public void iniciar() throws NoSuchFieldException, FileNotFoundException {
+    public void iniciar() throws NoSuchFieldException, FileNotFoundException, ParseException {
         String aux;
         String data = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
         dataLabel.setText(data);
@@ -116,7 +121,7 @@ public class Tela extends javax.swing.JFrame {
         reais.setText(String.valueOf(df.format(aux)));
     }
 
-    public void buscaDados() throws NoSuchFieldException, FileNotFoundException {
+    public void buscaDados() throws NoSuchFieldException, FileNotFoundException, ParseException {
 
         String retorno = null;
         Gson gson = new Gson();
@@ -132,10 +137,19 @@ public class Tela extends javax.swing.JFrame {
         }
 
         Gson g = new Gson();
-        RequestJson[] p = g.fromJson(retorno, RequestJson[].class);        
+        RequestJson[] p = g.fromJson(retorno, RequestJson[].class);
         //retorno = retorno.substring(68, 73);
         //retorno = retorno.replace("valor\":", "");
         valorAtual = Double.parseDouble(p[0].getHigh());
+
+        String aux = String.valueOf(p[0].getCreate_date());
+
+        String dataEmUmFormato = aux;
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
+        Date data = formato.parse(dataEmUmFormato);
+        formato.applyPattern("dd/MM/yyyy HH:mm:SS");
+        String dataFormatada = formato.format(data);
+        ultAtua.setText(dataFormatada);
 
     }
 
@@ -165,6 +179,8 @@ public class Tela extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         dataLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        ultAtua = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hotel Marin Château - Conversão de Dolar");
@@ -173,7 +189,7 @@ public class Tela extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 255));
-        jLabel1.setText("Dolar Atual R$");
+        jLabel1.setText("Dolar Atual: R$");
 
         dolarAtual.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarAtual.setForeground(new java.awt.Color(255, 0, 0));
@@ -181,7 +197,7 @@ public class Tela extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 255));
-        jLabel2.setText("Dolar Câmbio R$");
+        jLabel2.setText("Dolar Câmbio: R$");
 
         dolarCambio.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarCambio.setForeground(new java.awt.Color(255, 0, 0));
@@ -236,7 +252,7 @@ public class Tela extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 255));
-        jLabel5.setText("Taxa de Câmbio");
+        jLabel5.setText("Taxa de Câmbio:");
 
         dolarAtual1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarAtual1.setForeground(new java.awt.Color(255, 0, 0));
@@ -252,6 +268,14 @@ public class Tela extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel7.setText("*Desenvolvido por Danilo de Maria");
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel8.setText("Última Atualização:");
+
+        ultAtua.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        ultAtua.setForeground(new java.awt.Color(255, 0, 0));
+        ultAtua.setText("--/--/---");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -297,9 +321,13 @@ public class Tela extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(dolarAtual1))
+                        .addComponent(dolarAtual1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ultAtua, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(image, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 11, Short.MAX_VALUE))
+                .addGap(11, 11, 11))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel7)
@@ -322,7 +350,10 @@ public class Tela extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(dolarAtual1))
+                    .addComponent(dolarAtual1)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel8)
+                        .addComponent(ultAtua)))
                 .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -377,9 +408,12 @@ public class Tela extends javax.swing.JFrame {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         JOptionPane.showMessageDialog(null, "Valores atualizados com sucesso!");
+        reais.requestFocus();
     }//GEN-LAST:event_refreshMouseClicked
 
     private void dolarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dolarActionPerformed
@@ -430,6 +464,8 @@ public class Tela extends javax.swing.JFrame {
                     Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ParseException ex) {
+                    Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -451,7 +487,9 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JTextField reais;
     private javax.swing.JButton refresh;
+    private javax.swing.JLabel ultAtua;
     // End of variables declaration//GEN-END:variables
 }

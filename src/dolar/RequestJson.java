@@ -1,11 +1,27 @@
 
 package dolar;
 
+import java.util.Date;
+
 /**
  *
  * @author Administração
  */
 public class RequestJson {
+
+    /**
+     * @return the create_date
+     */
+    public String getCreate_date() {
+        return create_date;
+    }
+
+    /**
+     * @param create_date the create_date to set
+     */
+    public void setCreate_date(String create_date) {
+        this.create_date = create_date;
+    }
 
     /**
      * @return the code
@@ -150,16 +166,8 @@ public class RequestJson {
     /**
      * @return the create_date
      */
-    public String getCreate_date() {
-        return create_date;
-    }
 
-    /**
-     * @param create_date the create_date to set
-     */
-    public void setCreate_date(String create_date) {
-        this.create_date = create_date;
-    }
+
     
     private String high;
     private String code;
