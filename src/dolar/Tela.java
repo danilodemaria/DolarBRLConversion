@@ -21,14 +21,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import jdk.nashorn.internal.parser.JSONParser;
-import net.projectmonkey.object.mapper.ObjectMapper;
-import org.json.JSONObject;
 
-/**
- *
- * @author Administração
- */
 public class Tela extends javax.swing.JFrame {
 
     double valorAtual = 0;
@@ -51,6 +44,7 @@ public class Tela extends javax.swing.JFrame {
     }
 
     public boolean fechar() {
+        JOptionPane.showMessageDialog(null, "Fechando aplicação. Clique em 'Ok' para continuar.");
         System.exit(0);
         return true;
     }
@@ -129,10 +123,11 @@ public class Tela extends javax.swing.JFrame {
         ConexaoHttp a = new ConexaoHttp();
 
         String url = "http://economia.awesomeapi.com.br/USD-BRL/1";
-        System.out.println(url);
+
         try {
             retorno = a.sendGet(url);
         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar valor do dolar.");
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
 
