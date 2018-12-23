@@ -6,6 +6,7 @@
 package dolar;
 
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 
 /**
  *
@@ -16,7 +17,7 @@ public class Dolar {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws NoSuchFieldException, FileNotFoundException {
+    public static void main(String[] args) throws NoSuchFieldException, FileNotFoundException, ParseException {
         // TODO code application logic here
         Tela a = new Tela();
         a.setVisible(true);
