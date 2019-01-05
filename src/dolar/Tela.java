@@ -7,18 +7,17 @@ package dolar;
 
 import com.google.gson.Gson;
 import java.awt.Color;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -26,6 +25,9 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 
 public class Tela extends javax.swing.JFrame {
 
@@ -58,7 +60,7 @@ public class Tela extends javax.swing.JFrame {
         String aux;
         String data = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
         dataLabel.setText(data);
-        buscaDados();
+        buscaDadosAPI();
         aux = String.valueOf(valorAtual);
         dolarAtual.setText(String.format("%.2f", valorAtual));
         dolarCambio.setText(String.format("%.2f", (valorAtual - 0.05)));
@@ -124,7 +126,6 @@ public class Tela extends javax.swing.JFrame {
     public void buscaDados() throws NoSuchFieldException, FileNotFoundException, ParseException {
 
         String retorno = null;
-        Gson gson = new Gson();
         ConexaoHttp a = new ConexaoHttp();
 
         String url = "http://economia.awesomeapi.com.br/USD-BRL/1";
@@ -133,6 +134,7 @@ public class Tela extends javax.swing.JFrame {
             retorno = a.sendGet(url);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar valor do dolar.");
+            System.exit(0);
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -149,8 +151,36 @@ public class Tela extends javax.swing.JFrame {
         Date data = formato.parse(dataEmUmFormato);
         formato.applyPattern("dd/MM/yyyy HH:mm:SS");
         String dataFormatada = formato.format(data);
-        ultAtua.setText(dataFormatada);
 
+    }
+    
+    public void buscaDadosAPI() throws ParseException{
+        String retorno = null;
+        ConexaoHttp a = new ConexaoHttp();
+        Gson g = new Gson();
+        String dolar, peso, ibovespa, euro;
+        
+        String url = "https://api.hgbrasil.com/finance/quotations?format=json&key=c9f2364e";
+
+        try {
+            retorno = a.sendGet(url);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar valor do dolar.");
+            System.exit(0);
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println(retorno.substring(525,534));
+        
+        dolar = retorno.substring(102, 106);        
+        euro = retorno.substring(168,174);
+        peso = retorno.substring(320,326);
+        ibovespa = retorno.substring(525,534);
+        valorAtual = Double.parseDouble(dolar);
+        
+        textEuro.setText("R$ "+euro);
+        textPeso.setText("R$ "+peso);
+        textIbovespa.setText(ibovespa+" pontos");
+        
     }
 
     /**
@@ -179,33 +209,44 @@ public class Tela extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         dataLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        ultAtua = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        textEuro = new javax.swing.JLabel();
+        textPeso = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        textIbovespa = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hotel Marin Château - Conversão de Dolar");
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dolar/Guarda-sol.jpg"))); // NOI18N
+        getContentPane().add(image, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 463, -1));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 255));
         jLabel1.setText("Dolar Atual: R$");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 97, -1, -1));
 
         dolarAtual.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarAtual.setForeground(new java.awt.Color(255, 0, 0));
         dolarAtual.setText("jLabel2");
+        getContentPane().add(dolarAtual, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 97, -1, -1));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 255));
         jLabel2.setText("Dolar Câmbio: R$");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(196, 97, -1, -1));
 
         dolarCambio.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarCambio.setForeground(new java.awt.Color(255, 0, 0));
         dolarCambio.setText("jLabel2");
+        getContentPane().add(dolarCambio, new org.netbeans.lib.awtextra.AbsoluteConstraints(308, 97, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 0, 0));
         jLabel3.setText("Valor em R$ ");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 159, -1, -1));
 
         reais.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         reais.setForeground(new java.awt.Color(0, 0, 255));
@@ -214,10 +255,12 @@ public class Tela extends javax.swing.JFrame {
                 reaisActionPerformed(evt);
             }
         });
+        getContentPane().add(reais, new org.netbeans.lib.awtextra.AbsoluteConstraints(196, 156, 166, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 0, 0));
         jLabel4.setText("Valor em US$");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(97, 186, -1, -1));
 
         dolar.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolar.setForeground(new java.awt.Color(0, 0, 255));
@@ -226,6 +269,7 @@ public class Tela extends javax.swing.JFrame {
                 dolarActionPerformed(evt);
             }
         });
+        getContentPane().add(dolar, new org.netbeans.lib.awtextra.AbsoluteConstraints(196, 183, 166, -1));
 
         calculate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dolar/shuffle.png"))); // NOI18N
         calculate.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -233,6 +277,7 @@ public class Tela extends javax.swing.JFrame {
                 calculateMouseClicked(evt);
             }
         });
+        getContentPane().add(calculate, new org.netbeans.lib.awtextra.AbsoluteConstraints(223, 297, -1, -1));
 
         cleanFields.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         cleanFields.setText("Limpar Campos");
@@ -241,6 +286,7 @@ public class Tela extends javax.swing.JFrame {
                 cleanFieldsMouseClicked(evt);
             }
         });
+        getContentPane().add(cleanFields, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 299, -1, -1));
 
         refresh.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         refresh.setText("Atualizar");
@@ -249,143 +295,64 @@ public class Tela extends javax.swing.JFrame {
                 refreshMouseClicked(evt);
             }
         });
+        getContentPane().add(refresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(313, 297, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 255));
         jLabel5.setText("Taxa de Câmbio:");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 118, -1, -1));
 
         dolarAtual1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dolarAtual1.setForeground(new java.awt.Color(255, 0, 0));
         dolarAtual1.setText("R$ 0,05");
+        getContentPane().add(dolarAtual1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 118, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 0, 255));
         jLabel6.setText("Data:");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(196, 118, -1, -1));
 
         dataLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         dataLabel.setForeground(new java.awt.Color(255, 0, 0));
         dataLabel.setText("R$ 0,05");
+        getContentPane().add(dataLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(239, 118, -1, -1));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel7.setText("*Desenvolvido por Danilo de Maria");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(213, 340, -1, -1));
 
-        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(0, 0, 255));
-        jLabel8.setText("Última Atualização:");
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel9.setText("Euro");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 234, -1, -1));
 
-        ultAtua.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        ultAtua.setForeground(new java.awt.Color(255, 0, 0));
-        ultAtua.setText("--/--/---");
+        textEuro.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        textEuro.setForeground(new java.awt.Color(255, 0, 0));
+        textEuro.setText("jLabel2");
+        getContentPane().add(textEuro, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 234, -1, -1));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(cleanFields)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(calculate)
-                        .addGap(96, 96, 96)
-                        .addComponent(refresh)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dolarAtual)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dolarCambio)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(dataLabel)
-                        .addGap(19, 19, 19))))
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(97, 97, 97)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(dolar, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(reais, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(dolarAtual1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(ultAtua, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(image, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(11, 11, 11))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel7)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(image)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel6)
-                        .addComponent(dataLabel))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1)
-                        .addComponent(dolarAtual)
-                        .addComponent(jLabel2)
-                        .addComponent(dolarCambio)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(dolarAtual1)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel8)
-                        .addComponent(ultAtua)))
-                .addGap(23, 23, 23)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(reais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(dolar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(calculate)
-                        .addComponent(cleanFields))
-                    .addComponent(refresh))
-                .addGap(18, 18, 18)
-                .addComponent(jLabel7)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        textPeso.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        textPeso.setForeground(new java.awt.Color(255, 0, 0));
+        textPeso.setText("jLabel2");
+        getContentPane().add(textPeso, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 255, -1, -1));
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel10.setText("Peso");
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 255, -1, -1));
+
+        textIbovespa.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        textIbovespa.setForeground(new java.awt.Color(255, 0, 0));
+        textIbovespa.setText("jLabel2");
+        getContentPane().add(textIbovespa, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 276, -1, -1));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel11.setText("Ibovespa");
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 276, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void calculateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_calculateMouseClicked
-        // TODO add your handling code here:
-        double aux, aux1;
-        DecimalFormat df = new DecimalFormat("####.##");
-        aux = converteValor(reais.getText());
-        aux1 = Double.parseDouble(dolarCambio.getText().replace(",", "."));
-        aux = aux / (aux1);
-        dolar.setText(String.valueOf(df.format(aux)));
-
-    }//GEN-LAST:event_calculateMouseClicked
 
     private void reaisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reaisActionPerformed
         // TODO add your handling code here:
@@ -420,6 +387,16 @@ public class Tela extends javax.swing.JFrame {
         // TODO add your handling code here:
         reais.requestFocus();
     }//GEN-LAST:event_dolarActionPerformed
+
+    private void calculateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_calculateMouseClicked
+        // TODO add your handling code here:
+        double aux, aux1;
+        DecimalFormat df = new DecimalFormat("####.##");
+        aux = converteValor(reais.getText());
+        aux1 = Double.parseDouble(dolarCambio.getText().replace(",", "."));
+        aux = aux / (aux1);
+        dolar.setText(String.valueOf(df.format(aux)));
+    }//GEN-LAST:event_calculateMouseClicked
 
     public double converteValor(String aux) {
 
@@ -481,15 +458,19 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JLabel dolarCambio;
     private javax.swing.JLabel image;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JTextField reais;
     private javax.swing.JButton refresh;
-    private javax.swing.JLabel ultAtua;
+    private javax.swing.JLabel textEuro;
+    private javax.swing.JLabel textIbovespa;
+    private javax.swing.JLabel textPeso;
     // End of variables declaration//GEN-END:variables
 }
