@@ -158,7 +158,7 @@ public class Tela extends javax.swing.JFrame {
         String retorno = null;
         ConexaoHttp a = new ConexaoHttp();
         Gson g = new Gson();
-        String dolar, peso, ibovespa, euro;
+        String dolar, peso, ibovespa, euro,aux;
         
         String url = "https://api.hgbrasil.com/finance/quotations?format=json&key=c9f2364e";
 
@@ -169,17 +169,23 @@ public class Tela extends javax.swing.JFrame {
             System.exit(0);
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println(retorno.substring(525,534));
         
         dolar = retorno.substring(102, 106);        
-        euro = retorno.substring(168,174);
-        peso = retorno.substring(320,326);
+        euro = retorno.substring(165,174);
+        euro = euro.replaceAll("[^0-9.]", "");
+        euro = euro.substring(0, 4);
+        peso = retorno.substring(318,326);
+        peso = peso.replaceAll("[^0-9.]", "");
+        peso = peso.substring(0, 4);
         ibovespa = retorno.substring(525,534);
         valorAtual = Double.parseDouble(dolar);
         
+        aux = retorno.substring(520,540);
+        aux = aux.replaceAll("[^0-9.]", "");
+        
         textEuro.setText("R$ "+euro);
         textPeso.setText("R$ "+peso);
-        textIbovespa.setText(ibovespa+" pontos");
+        textIbovespa.setText(aux+" pontos");
         
     }
 
