@@ -174,13 +174,15 @@ public class Tela extends javax.swing.JFrame {
         euro = retorno.substring(165,174);
         euro = euro.replaceAll("[^0-9.]", "");
         euro = euro.substring(0, 4);
-        peso = retorno.substring(318,326);
+        peso = retorno.substring(310,326);
         peso = peso.replaceAll("[^0-9.]", "");
+        
         peso = peso.substring(0, 4);
-        ibovespa = retorno.substring(525,534);
+        ibovespa = retorno.substring(510,534);
+        System.out.println(ibovespa);
         valorAtual = Double.parseDouble(dolar);
         
-        aux = retorno.substring(520,540);
+        aux = retorno.substring(510,540);
         aux = aux.replaceAll("[^0-9.]", "");
         
         textEuro.setText("R$ "+euro);
