@@ -160,7 +160,7 @@ public class Tela extends javax.swing.JFrame {
         Gson g = new Gson();
         String dolar, peso, ibovespa, euro,aux;
         
-        String url = "https://api.hgbrasil.com/finance/quotations?format=json&key=c9f2364e";
+        String url = "https://api.hgbrasil.com/finance/quotations?format=json&key=f2baf3d6";
 
         try {
             retorno = a.sendGet(url);
