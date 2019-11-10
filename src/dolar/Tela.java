@@ -1,13 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dolar;
 
-import com.google.gson.Gson;
 import java.awt.Color;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -25,15 +17,17 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import java.lang.reflect.Type;
-import com.google.gson.reflect.TypeToken;
-import java.util.ArrayList;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class Tela extends javax.swing.JFrame {
 
     double valorAtual = 0;
 
-    public Tela() throws NoSuchFieldException, FileNotFoundException, ParseException {
+    public Tela() throws NoSuchFieldException, FileNotFoundException, ParseException, IOException {
         AplicaNimbusLookAndFeel.pegaNimbus();
         initComponents();
         this.setResizable(false);
@@ -56,11 +50,11 @@ public class Tela extends javax.swing.JFrame {
         return true;
     }
 
-    public void iniciar() throws NoSuchFieldException, FileNotFoundException, ParseException {
+    public void iniciar() throws NoSuchFieldException, FileNotFoundException, ParseException, IOException {
         String aux;
         String data = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
         dataLabel.setText(data);
-        buscaDadosAPI();
+        buscaDados();
         aux = String.valueOf(valorAtual);
         dolarAtual.setText(String.format("%.2f", valorAtual));
         dolarCambio.setText(String.format("%.2f", (valorAtual - 0.05)));
@@ -123,79 +117,39 @@ public class Tela extends javax.swing.JFrame {
         reais.setText(String.valueOf(df.format(aux)));
     }
 
-    public void buscaDados() throws NoSuchFieldException, FileNotFoundException, ParseException {
+    public void buscaDados() throws NoSuchFieldException, FileNotFoundException, ParseException, MalformedURLException, IOException {
 
-        String retorno = null;
-        ConexaoHttp a = new ConexaoHttp();
-
-        String url = "http://economia.awesomeapi.com.br/USD-BRL/1";
-
-        try {
-            retorno = a.sendGet(url);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao buscar valor do dolar.");
-            System.exit(0);
-            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        URL url;
+        URLConnection uc;
+        StringBuilder parsedContentFromUrl = new StringBuilder();
+        String urlString = "https://api.hgbrasil.com/finance/quotations?format=json-cors&key=c55e6599";
+        url = new URL(urlString);
+        uc = url.openConnection();
+        uc.addRequestProperty("User-Agent",
+                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+        uc.connect();
+        uc.getInputStream();
+        BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
+        int ch;
+        while ((ch = in.read()) != -1) {
+            parsedContentFromUrl.append((char) ch);
         }
 
-        Gson g = new Gson();
-        RequestJson[] p = g.fromJson(retorno, RequestJson[].class);
-        //retorno = retorno.substring(68, 73);
-        //retorno = retorno.replace("valor\":", "");
-        valorAtual = Double.parseDouble(p[0].getHigh());
-
-        String aux = String.valueOf(p[0].getCreate_date());
+        valorAtual = Double.parseDouble(parsedContentFromUrl.substring(102, 107));
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        String aux = String.valueOf(formatter.format(date));
 
         String dataEmUmFormato = aux;
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
         Date data = formato.parse(dataEmUmFormato);
         formato.applyPattern("dd/MM/yyyy HH:mm:SS");
         String dataFormatada = formato.format(data);
-
-    }
-    
-    public void buscaDadosAPI() throws ParseException{
-        String retorno = null;
-        ConexaoHttp a = new ConexaoHttp();
-        Gson g = new Gson();
-        String dolar, peso, ibovespa, euro,aux;
-        
-        String url = "https://api.hgbrasil.com/finance/quotations?format=json&key=f2baf3d6";
-
-        try {
-            retorno = a.sendGet(url);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao buscar valor do dolar.");
-            System.exit(0);
-            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        dolar = retorno.substring(102, 106);        
-        euro = retorno.substring(165,174);
-        euro = euro.replaceAll("[^0-9.]", "");
-        euro = euro.substring(0, 4);
-        peso = retorno.substring(310,326);
-        peso = peso.replaceAll("[^0-9.]", "");
-        
-        peso = peso.substring(0, 4);
-        ibovespa = retorno.substring(510,534);
-        System.out.println(ibovespa);
-        valorAtual = Double.parseDouble(dolar);
-        
-        aux = retorno.substring(510,540);
-        aux = aux.replaceAll("[^0-9.]", "");
-        
-        textEuro.setText("R$ "+euro);
-        textPeso.setText("R$ "+peso);
-        textIbovespa.setText(aux+" pontos");
-        
+        textEuro.setText("R$ "+parsedContentFromUrl.substring(168, 173));
+        textPeso.setText("R$ "+parsedContentFromUrl.substring(320, 324));
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -221,8 +175,6 @@ public class Tela extends javax.swing.JFrame {
         textEuro = new javax.swing.JLabel();
         textPeso = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        textIbovespa = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hotel Marin Château - Conversão de Dolar");
@@ -349,16 +301,6 @@ public class Tela extends javax.swing.JFrame {
         jLabel10.setText("Peso");
         getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 255, -1, -1));
 
-        textIbovespa.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        textIbovespa.setForeground(new java.awt.Color(255, 0, 0));
-        textIbovespa.setText("jLabel2");
-        getContentPane().add(textIbovespa, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 276, -1, -1));
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(0, 0, 255));
-        jLabel11.setText("Ibovespa");
-        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 276, -1, -1));
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -384,6 +326,8 @@ public class Tela extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -413,9 +357,6 @@ public class Tela extends javax.swing.JFrame {
         return Double.parseDouble(aux);
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -451,6 +392,8 @@ public class Tela extends javax.swing.JFrame {
                     Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ParseException ex) {
                     Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -467,7 +410,6 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JLabel image;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -478,7 +420,6 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JTextField reais;
     private javax.swing.JButton refresh;
     private javax.swing.JLabel textEuro;
-    private javax.swing.JLabel textIbovespa;
     private javax.swing.JLabel textPeso;
     // End of variables declaration//GEN-END:variables
 }
